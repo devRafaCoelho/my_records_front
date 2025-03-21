@@ -20,7 +20,49 @@ const login = async (credentials) => {
   }
 }
 
+const updateUser = async (userData, token) => {
+  try {
+    const response = await axios.put(`${API_URL}/api/users`, userData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    throw error.response.data
+  }
+}
+
+const updateUserPassword = async (passwordData, token) => {
+  try {
+    const response = await axios.put(`${API_URL}/api/users/account`, passwordData, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    throw error.response.data
+  }
+}
+
+const deleteUser = async (token) => {
+  try {
+    const response = await axios.delete(`${API_URL}/api/users`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    return response.data
+  } catch (error) {
+    throw error.response.data
+  }
+}
+
 export default {
   registerUser,
-  login
+  login,
+  updateUser,
+  updateUserPassword,
+  deleteUser
 }

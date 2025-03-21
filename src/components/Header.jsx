@@ -17,7 +17,7 @@ import { useAppContext } from '../hooks/useAppContext'
 import { logOut } from '../utils/storage'
 
 function Header() {
-  const { userData } = useAppContext() // Obtém o userData do contexto
+  const { userData } = useAppContext()
   const [anchorElUser, setAnchorElUser] = React.useState(null)
   const navigate = useNavigate()
 
@@ -47,14 +47,10 @@ function Header() {
 
   const getUserInitials = () => {
     if (!userData) return ''
-    const firstNameInitial = userData.firstname?.charAt(0).toUpperCase() || ''
-    const lastNameInitial = userData.lastname?.charAt(0).toUpperCase() || ''
+    const firstNameInitial = userData.firstname?.charAt(0).toUpperCase()
+    const lastNameInitial = userData.lastname?.charAt(0).toUpperCase()
     return `${firstNameInitial}${lastNameInitial}`
   }
-
-  React.useEffect(() => {
-    console.log('User Data:', userData)
-  }, [userData])
 
   return (
     <AppBar position="static">
@@ -90,7 +86,7 @@ function Header() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar>{getUserInitials()}</Avatar>
+                <Avatar>{getUserInitials() || <AccountCircleIcon />} </Avatar>
               </IconButton>
             </Tooltip>
 

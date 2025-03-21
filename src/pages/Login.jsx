@@ -1,5 +1,9 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import InputAdornment from '@mui/material/InputAdornment'
+import IconButton from '@mui/material/IconButton'
 import {
   Avatar,
   Box,
@@ -24,6 +28,7 @@ import { useAppContext } from '../hooks/useAppContext'
 const Login = () => {
   const [loading, setLoading] = useState(false)
   const [errorToast, setErrorToast] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const { setUserData } = useAppContext()
 
@@ -39,6 +44,10 @@ const Login = () => {
       password: ''
     }
   })
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev)
+  }
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -109,8 +118,19 @@ const Login = () => {
             error={!!errors.password}
             helperText={errors.password?.message}
             variant="outlined"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             fullWidth
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }
+            }}
           />
           <Button type="submit" variant="contained" color="primary" sx={{ mt: 3, mb: 2 }}>
             Login

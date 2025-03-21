@@ -6,10 +6,10 @@ import { AppProvider } from './contexts/AppProvider' // Importa o AppProvider
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AppProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <AppProvider>
         <MainRoutes />
-      </BrowserRouter>
-    </AppProvider>
+      </AppProvider>
+    </BrowserRouter>
   </React.StrictMode>
 )

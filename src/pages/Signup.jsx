@@ -11,8 +11,12 @@ import {
   Backdrop,
   CircularProgress,
   Snackbar,
-  Alert
+  Alert,
+  InputAdornment,
+  IconButton
 } from '@mui/material'
+import Visibility from '@mui/icons-material/Visibility'
+import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +26,7 @@ import userService from '../services/userService'
 const Signup = () => {
   const [loading, setLoading] = useState(false)
   const [successToast, setSuccessToast] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
 
   const {
@@ -38,6 +43,10 @@ const Signup = () => {
       password: ''
     }
   })
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev)
+  }
 
   const onSubmit = async (data) => {
     setLoading(true)
@@ -124,8 +133,19 @@ const Signup = () => {
             error={!!errors.password}
             helperText={errors.password?.message}
             variant="outlined"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             fullWidth
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleTogglePasswordVisibility} edge="end">
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                )
+              }
+            }}
           />
           <Button type="submit" variant="contained" color="primary" sx={{ mt: 3, mb: 2 }}>
             Submit
