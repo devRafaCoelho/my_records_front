@@ -6,7 +6,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import GlobalStyles from './styles/GlobalStyles'
-import Account from './pages/Account/Account'
+import Account from './pages/Account'
 
 function ProtectedRoutes({ redirectTo }) {
   const isAuth = getItem('token')

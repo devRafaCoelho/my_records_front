@@ -1,21 +1,23 @@
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import AdbIcon from '@mui/icons-material/Adb'
+import LogoutIcon from '@mui/icons-material/Logout'
+import AppBar from '@mui/material/AppBar'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Toolbar from '@mui/material/Toolbar'
+import Tooltip from '@mui/material/Tooltip'
+import Typography from '@mui/material/Typography'
 import * as React from 'react'
 import { useNavigate } from 'react-router-dom'
-import AppBar from '@mui/material/AppBar'
-import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import Menu from '@mui/material/Menu'
-import Container from '@mui/material/Container'
-import Avatar from '@mui/material/Avatar'
-import Tooltip from '@mui/material/Tooltip'
-import MenuItem from '@mui/material/MenuItem'
-import AdbIcon from '@mui/icons-material/Adb'
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import LogoutIcon from '@mui/icons-material/Logout'
+import { useAppContext } from '../hooks/useAppContext'
 import { logOut } from '../utils/storage'
 
 function Header() {
+  const { userData } = useAppContext() // Obtém o userData do contexto
   const [anchorElUser, setAnchorElUser] = React.useState(null)
   const navigate = useNavigate()
 
@@ -43,34 +45,52 @@ function Header() {
     { name: 'Logout', icon: <LogoutIcon />, onClick: handleLogoutClick }
   ]
 
+  const getUserInitials = () => {
+    if (!userData) return ''
+    const firstNameInitial = userData.firstname?.charAt(0).toUpperCase() || ''
+    const lastNameInitial = userData.lastname?.charAt(0).toUpperCase() || ''
+    return `${firstNameInitial}${lastNameInitial}`
+  }
+
+  React.useEffect(() => {
+    console.log('User Data:', userData)
+  }, [userData])
+
   return (
     <AppBar position="static">
       <Container maxWidth={false}>
         <Toolbar disableGutters>
-          <AdbIcon sx={{ mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+          <Box
             sx={{
-              mr: 2,
-              fontFamily: 'monospace',
-              fontWeight: 700,
-              letterSpacing: '.3rem',
-              color: 'inherit',
-              textDecoration: 'none'
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer'
             }}
+            onClick={() => navigate('/home')}
           >
-            LOGO
-          </Typography>
+            <AdbIcon sx={{ mr: 1 }} />
+            <Typography
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+                color: 'inherit',
+                textDecoration: 'none'
+              }}
+            >
+              LOGO
+            </Typography>
+          </Box>
 
           <Box sx={{ flexGrow: 1 }} />
 
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar>{getUserInitials()}</Avatar>
               </IconButton>
             </Tooltip>
 

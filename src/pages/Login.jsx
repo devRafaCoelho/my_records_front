@@ -19,11 +19,13 @@ import { useNavigate } from 'react-router-dom'
 import { LoginSchema } from '../schemas/LoginSchema'
 import userService from '../services/userService'
 import { setItem } from '../utils/storage'
+import { useAppContext } from '../hooks/useAppContext'
 
 const Login = () => {
   const [loading, setLoading] = useState(false)
   const [errorToast, setErrorToast] = useState(false)
   const navigate = useNavigate()
+  const { setUserData } = useAppContext()
 
   const {
     register,
@@ -45,6 +47,7 @@ const Login = () => {
       const response = await userService.login(data)
       setItem('token', response.token)
       setItem('user', JSON.stringify(response.user))
+      setUserData(response.user)
       navigate('/home')
     } catch (error) {
       setLoading(false)
