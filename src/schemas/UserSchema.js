@@ -6,6 +6,5 @@ export const UserSchema = yup.object().shape({
   email: yup.string().required('Este campo deve ser preenchido'),
   cpf: yup.string(),
   phone: yup.string(),
-  password: yup.string().required('Este campo deve ser preenchido'),
-  confirmPassword: yup.string().required('Este campo deve ser preenchido')
+  password: yup.string().required('Este campo deve ser preenchido')
 })

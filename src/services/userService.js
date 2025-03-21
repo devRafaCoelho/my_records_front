@@ -1,4 +1,3 @@
-// filepath: c:\Users\rafac\Documents\my-records\my_records_front\src\services\userService.js
 import axios from 'axios'
 
 const API_URL = 'http://localhost:3000'
