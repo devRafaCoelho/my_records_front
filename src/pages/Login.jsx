@@ -16,9 +16,9 @@ import {
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { LoginSchema } from '../../schemas/LoginSchema'
-import userService from '../../services/userService'
-import { setItem } from '../../utils/storage'
+import { LoginSchema } from '../schemas/LoginSchema'
+import userService from '../services/userService'
+import { setItem } from '../utils/storage'
 
 const Login = () => {
   const [loading, setLoading] = useState(false)

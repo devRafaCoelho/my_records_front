@@ -2,10 +2,11 @@ import { ThemeProvider } from '@mui/material'
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { theme } from './theme/theme'
 import { getItem } from './utils/storage'
-import Home from './pages/Home/Home'
-import Login from './pages/Login/Login'
-import Signup from './pages/Signup/Signup'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
 import GlobalStyles from './styles/GlobalStyles'
+import Account from './pages/Account/Account'
 
 function ProtectedRoutes({ redirectTo }) {
   const isAuth = getItem('token')
@@ -23,6 +24,7 @@ export default function MainRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route element={<ProtectedRoutes redirectTo="/login" />}>
           <Route path="/home" element={<Home />} />
+          <Route path="/account" element={<Account />} /> {/* Nova rota adicionada */}
         </Route>
       </Routes>
     </ThemeProvider>
