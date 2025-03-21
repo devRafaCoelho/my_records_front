@@ -18,12 +18,12 @@ export default function MainRoutes() {
     <ThemeProvider theme={theme}>
       <GlobalStyles />
       <Routes>
+        <Route path="*" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route element={<ProtectedRoutes redirectTo="/login" />}>
           <Route path="/home" element={<Home />} />
         </Route>
-        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </ThemeProvider>
   )

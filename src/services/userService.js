@@ -11,6 +11,16 @@ const registerUser = async (userData) => {
   }
 }
 
+const login = async (credentials) => {
+  try {
+    const response = await axios.post(`${API_URL}/api/login`, credentials)
+    return response.data
+  } catch (error) {
+    throw error.response.data
+  }
+}
+
 export default {
-  registerUser
+  registerUser,
+  login
 }
