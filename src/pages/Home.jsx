@@ -17,13 +17,31 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button
+  Button,
+  Modal,
+  Box,
+  TextField
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import AddCircleIcon from '@mui/icons-material/AddCircle'
 import Header from '../components/Header'
 import recordService from '../services/recordService'
 import { getItem } from '../utils/storage'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { RecordSchema } from '../schemas/RecordSchema'
+
+const getChipColor = (status) => {
+  switch (status) {
+    case 'Pendente':
+      return 'warning' // Amarelo
+    case 'Vencida':
+      return 'error' // Vermelho
+    default:
+      return 'success' // Verde
+  }
+}
 
 const Home = () => {
   const [records, setRecords] = useState([])
@@ -31,6 +49,7 @@ const Home = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedRecordId, setSelectedRecordId] = useState(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const fetchRecords = async () => {
     const token = getItem('token')
@@ -47,14 +66,43 @@ const Home = () => {
     fetchRecords()
   }, [])
 
-  const getChipColor = (status) => {
-    switch (status) {
-      case 'Pendente':
-        return 'warning'
-      case 'Vencida':
-        return 'error'
-      default:
-        return 'success'
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    resolver: yupResolver(RecordSchema),
+    defaultValues: {
+      description: '',
+      due_date: '',
+      value: '',
+      paid_out: false
+    }
+  })
+
+  const handleOpenModal = () => {
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    reset()
+  }
+
+  const onSubmit = async (data) => {
+    const token = getItem('token')
+
+    try {
+      await recordService.createRecord(data, token)
+      setSnackbarMessage('Record created successfully!')
+      setSnackbarOpen(true)
+      fetchRecords()
+      handleCloseModal()
+    } catch (error) {
+      console.error('Error creating record:', error)
+      setSnackbarMessage('Error creating record.')
+      setSnackbarOpen(true)
     }
   }
 
@@ -105,6 +153,7 @@ const Home = () => {
         <Typography variant="h4" component="h1" gutterBottom>
           Records
         </Typography>
+
         <TableContainer
           component={Paper}
           sx={{
@@ -113,6 +162,19 @@ const Home = () => {
         >
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
+              <TableRow>
+                <TableCell colSpan={7} align="right">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    endIcon={<AddCircleIcon />}
+                    sx={{ mb: 1 }}
+                    onClick={handleOpenModal}
+                  >
+                    Add Record
+                  </Button>
+                </TableCell>
+              </TableRow>
               <TableRow>
                 <TableCell>ID</TableCell>
                 <TableCell align="left">Description</TableCell>
@@ -133,7 +195,7 @@ const Home = () => {
                   <TableCell align="left">
                     <Chip
                       label={record.status}
-                      color={getChipColor(record.status)}
+                      color={getChipColor(record.status)} // Usa a função para definir a cor
                       sx={{ fontWeight: 'bold' }}
                     />
                   </TableCell>
@@ -152,6 +214,69 @@ const Home = () => {
           </Table>
         </TableContainer>
       </Container>
+
+      <Modal
+        open={modalOpen}
+        onClose={handleCloseModal}
+        aria-labelledby="add-record-modal-title"
+        aria-describedby="add-record-modal-description"
+      >
+        <Box
+          component="form"
+          onSubmit={handleSubmit(onSubmit)}
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 400,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2
+          }}
+        >
+          <Typography id="add-record-modal-title" variant="h6" component="h2">
+            Add New Record
+          </Typography>
+          <TextField
+            label="Description"
+            {...register('description')}
+            error={!!errors.description}
+            helperText={errors.description?.message}
+            fullWidth
+          />
+          <TextField
+            label="Due Date (DD-MM-YYYY)"
+            {...register('due_date')}
+            error={!!errors.due_date}
+            helperText={errors.due_date?.message}
+            fullWidth
+          />
+          <TextField
+            label="Value"
+            {...register('value')}
+            error={!!errors.value}
+            helperText={errors.value?.message}
+            fullWidth
+          />
+          <TextField
+            label="Paid Out (true/false)"
+            {...register('paid_out')}
+            error={!!errors.paid_out}
+            helperText={errors.paid_out?.message}
+            fullWidth
+          />
+          <Button type="submit" variant="contained" fullWidth>
+            Submit
+          </Button>
+          <Button variant="outlined" onClick={handleCloseModal} fullWidth>
+            Cancel
+          </Button>
+        </Box>
+      </Modal>
 
       <Dialog
         open={dialogOpen}

@@ -86,7 +86,7 @@ function Header() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar sx={{ bgcolor: 'primary.main' }}>
+                <Avatar sx={{ bgcolor: 'primary.main', fontWeight: 'bold' }}>
                   {getUserInitials() || <AccountCircleIcon />}
                 </Avatar>
               </IconButton>
