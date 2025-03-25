@@ -1,36 +1,34 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
   Alert,
   Box,
   Button,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   InputAdornment,
   Snackbar,
   Tab,
   Tabs,
-  TextField,
-  Typography,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle
+  TextField
 } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import CpfInput from '../components/CpfInput'
 import Header from '../components/Header'
-import PhoneInput from '../components/PhoneInput'
+import CpfInput from '../components/Inputs/CpfInput'
+import PhoneInput from '../components/Inputs/PhoneInput'
 import { useAppContext } from '../hooks/useAppContext'
+import { NewPasswordSchema } from '../schemas/NewPasswordSchema'
 import { UserSchema } from '../schemas/UserSchema'
 import userService from '../services/userService'
 import { getItem, setItem } from '../utils/storage'
-import { NewPasswordSchema } from '../schemas/NewPasswordSchema'
 
 const TabPanel = ({ children, value, index }) => {
   return (

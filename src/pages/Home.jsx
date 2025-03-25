@@ -1,45 +1,52 @@
-import React, { useEffect, useState } from 'react'
+import { yupResolver } from '@hookform/resolvers/yup'
+import AddCircleIcon from '@mui/icons-material/AddCircle'
+import DeleteIcon from '@mui/icons-material/Delete'
+import EditIcon from '@mui/icons-material/Edit'
 import {
+  Alert,
+  Box,
+  Button,
   Chip,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Modal,
   Paper,
+  Snackbar,
+  Switch,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
-  Snackbar,
-  Alert,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-  Modal,
-  Box,
-  TextField
+  TextField,
+  Typography
 } from '@mui/material'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
-import AddCircleIcon from '@mui/icons-material/AddCircle'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { format } from 'date-fns'
+import React, { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import Header from '../components/Header'
+import ValueInput from '../components/Inputs/ValueInput'
+import { RecordSchema } from '../schemas/RecordSchema'
 import recordService from '../services/recordService'
 import { getItem } from '../utils/storage'
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { RecordSchema } from '../schemas/RecordSchema'
 
 const getChipColor = (status) => {
   switch (status) {
     case 'Pendente':
-      return 'warning' // Amarelo
+      return 'warning'
     case 'Vencida':
-      return 'error' // Vermelho
+      return 'error'
     default:
-      return 'success' // Verde
+      return 'success'
   }
 }
 
@@ -70,6 +77,7 @@ const Home = () => {
     register,
     handleSubmit,
     reset,
+    getValues,
     formState: { errors }
   } = useForm({
     resolver: yupResolver(RecordSchema),
@@ -91,10 +99,17 @@ const Home = () => {
   }
 
   const onSubmit = async (data) => {
-    const token = getItem('token')
+    const formattedData = {
+      ...data,
+      due_date: format(new Date(data.due_date), 'dd-MM-yyyy'),
+      value: parseFloat(data.value.replace('R$', '').replace('.', '').replace(',', '.'))
+    }
+
+    console.log(formattedData)
 
     try {
-      await recordService.createRecord(data, token)
+      const token = getItem('token')
+      await recordService.createRecord(formattedData, token)
       setSnackbarMessage('Record created successfully!')
       setSnackbarOpen(true)
       fetchRecords()
@@ -195,7 +210,7 @@ const Home = () => {
                   <TableCell align="left">
                     <Chip
                       label={record.status}
-                      color={getChipColor(record.status)} // Usa a função para definir a cor
+                      color={getChipColor(record.status)}
                       sx={{ fontWeight: 'bold' }}
                     />
                   </TableCell>
@@ -248,27 +263,35 @@ const Home = () => {
             helperText={errors.description?.message}
             fullWidth
           />
-          <TextField
-            label="Due Date (DD-MM-YYYY)"
-            {...register('due_date')}
-            error={!!errors.due_date}
-            helperText={errors.due_date?.message}
-            fullWidth
-          />
-          <TextField
-            label="Value"
-            {...register('value')}
-            error={!!errors.value}
-            helperText={errors.value?.message}
-            fullWidth
-          />
-          <TextField
-            label="Paid Out (true/false)"
-            {...register('paid_out')}
-            error={!!errors.paid_out}
-            helperText={errors.paid_out?.message}
-            fullWidth
-          />
+
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={['DatePicker']}>
+              <DatePicker
+                label="Basic date picker"
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.due_date,
+                    helperText: errors.due_date?.message,
+                    ...register('due_date')
+                  }
+                }}
+              />
+            </DemoContainer>
+          </LocalizationProvider>
+
+          <ValueInput name="value" label="Value" register={register} errors={errors} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography>Paid Out</Typography>
+            <Switch
+              {...register('paid_out')}
+              onChange={(e) => {
+                const value = e.target.checked
+                reset({ ...getValues(), paid_out: value })
+              }}
+              checked={!!getValues('paid_out')}
+            />
+          </Box>
           <Button type="submit" variant="contained" fullWidth>
             Submit
           </Button>
