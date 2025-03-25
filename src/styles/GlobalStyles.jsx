@@ -1,13 +1,31 @@
-import { GlobalStyles as MuiGlobalStyles } from '@mui/material'
+import { GlobalStyles as MuiGlobalStyles, useTheme } from '@mui/material'
 
-const globalStyles = {
-  '*': {
-    margin: 0,
-    padding: 0,
-    boxSizing: 'border-box'
+const GlobalStyles = () => {
+  const theme = useTheme()
+
+  const globalStyles = {
+    '*': {
+      margin: 0,
+      padding: 0,
+      boxSizing: 'border-box'
+    },
+    body: {
+      color: theme.palette.common.white, // Cor do texto
+      backgroundColor: theme.palette.common.black // Cor de fundo
+    },
+    input: {
+      WebkitBoxShadow: 'none !important',
+      MozBoxShadow: 'none !important',
+      boxShadow: 'none !important'
+    },
+    'input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active':
+      {
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: theme.palette.common.white // Cor do texto no autofill
+      }
   }
-}
 
-const GlobalStyles = () => <MuiGlobalStyles styles={globalStyles} />
+  return <MuiGlobalStyles styles={globalStyles} />
+}
 
 export default GlobalStyles

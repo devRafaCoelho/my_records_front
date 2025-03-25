@@ -222,24 +222,6 @@ const Account = () => {
           mt: 3
         }}
       >
-        {/* <Box
-          sx={{
-            position: 'absolute',
-            top: 80,
-            left: 16,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1
-          }}
-        >
-          <IconButton onClick={() => navigate('/home')}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="body2" component="span">
-            Back to Home
-          </Typography>
-        </Box> */}
-
         <Tabs
           value={tabValue}
           onChange={handleChange}
