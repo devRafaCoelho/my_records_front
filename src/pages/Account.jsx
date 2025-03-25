@@ -1,6 +1,6 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import Visibility from '@mui/icons-material/Visibility'
-import VisibilityOff from '@mui/icons-material/VisibilityOff'
+import { yupResolver } from '@hookform/resolvers/yup';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import {
   Alert,
   Box,
@@ -17,51 +17,35 @@ import {
   Tab,
   Tabs,
   TextField
-} from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
-import Header from '../components/Header'
-import CpfInput from '../components/Inputs/CpfInput'
-import PhoneInput from '../components/Inputs/PhoneInput'
-import { useAppContext } from '../hooks/useAppContext'
-import { NewPasswordSchema } from '../schemas/NewPasswordSchema'
-import { UserSchema } from '../schemas/UserSchema'
-import userService from '../services/userService'
-import { getItem, setItem } from '../utils/storage'
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
+import CpfInput from '../components/Inputs/CpfInput';
+import PhoneInput from '../components/Inputs/PhoneInput';
+import { useAppContext } from '../hooks/useAppContext';
+import { NewPasswordSchema } from '../schemas/NewPasswordSchema';
+import { UserSchema } from '../schemas/UserSchema';
+import userService from '../services/userService';
+import { getItem, setItem } from '../utils/storage';
 
 const TabPanel = ({ children, value, index }) => {
   return (
     <Box role="tabpanel" hidden={value !== index} sx={{ width: '100%', p: 3 }}>
       {value === index && <Box>{children}</Box>}
     </Box>
-  )
-}
-
-const TextMaskCustom = React.forwardRef(function TextMaskCustom(props, ref) {
-  const { onChange, ...other } = props
-  return (
-    <IMaskInput
-      {...other}
-      mask="000.000.000-00"
-      definitions={{
-        0: /[0-9]/
-      }}
-      inputRef={ref}
-      onAccept={(value) => onChange({ target: { name: props.name, value } })}
-      overwrite
-    />
-  )
-})
+  );
+};
 
 const Account = () => {
-  const { userData, setUserData } = useAppContext()
-  const [tabValue, setTabValue] = useState(0)
-  const [showPassword, setShowPassword] = useState(false)
-  const [successToast, setSuccessToast] = useState(false)
-  const [errorToast, setErrorToast] = useState(false)
-  const [openDialog, setOpenDialog] = useState(false) // Estado para controlar o diálogo
-  const navigate = useNavigate()
+  const { userData, setUserData } = useAppContext();
+  const [tabValue, setTabValue] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [successToast, setSuccessToast] = useState(false);
+  const [errorToast, setErrorToast] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -79,7 +63,7 @@ const Account = () => {
       cpf: '',
       phone: ''
     }
-  })
+  });
 
   const {
     register: registerPassword,
@@ -93,7 +77,7 @@ const Account = () => {
       newPassword: '',
       confirmNewPassword: ''
     }
-  })
+  });
 
   useEffect(() => {
     if (userData) {
@@ -104,84 +88,84 @@ const Account = () => {
         password: '',
         cpf: userData.cpf || '',
         phone: userData.phone || ''
-      })
+      });
     }
-  }, [userData, reset])
+  }, [userData, reset]);
 
   const handleChange = (event, newValue) => {
-    setTabValue(newValue)
-  }
+    setTabValue(newValue);
+  };
 
   const handleTogglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev)
-  }
+    setShowPassword((prev) => !prev);
+  };
 
   const handleOpenDialog = () => {
-    setOpenDialog(true)
-  }
+    setOpenDialog(true);
+  };
 
   const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
+    setOpenDialog(false);
+  };
 
   const handleDeleteAccount = async () => {
-    const token = getItem('token') // Recupera o token do armazenamento local
+    const token = getItem('token');
 
     try {
-      await userService.deleteUser(token) // Chama o serviço deleteUser
-      setOpenDialog(false)
-      setSuccessToast(true) // Exibe o Snackbar de sucesso
+      await userService.deleteUser(token);
+      setOpenDialog(false);
+      setSuccessToast(true);
 
       setTimeout(() => {
-        navigate('/login') // Redireciona para a página de login após 1,5 segundos
-      }, 1500)
+        navigate('/login');
+      }, 1500);
     } catch (error) {
-      console.error('Erro ao deletar a conta:', error)
-      setErrorToast(true) // Exibe o Snackbar de erro
+      console.error('Erro ao deletar a conta:', error);
+      setErrorToast(true);
     }
-  }
+  };
 
   const onSubmit = async (data) => {
-    data.cpf = data.cpf?.replace(/\D/g, '')
-    data.phone = data.phone?.replace(/[^+\d]/g, '')
-    console.log(data)
+    data.cpf = data.cpf?.replace(/\D/g, '');
+    data.phone = data.phone?.replace(/[^+\d]/g, '');
+    console.log(data);
 
     try {
-      const token = getItem('token')
-      const updatedUser = await userService.updateUser(data, token)
+      const token = getItem('token');
+      const updatedUser = await userService.updateUser(data, token);
 
-      setItem('user', JSON.stringify(updatedUser))
-      setUserData(updatedUser)
+      setItem('user', JSON.stringify(updatedUser));
+      setUserData(updatedUser);
 
-      setSuccessToast(true)
+      setSuccessToast(true);
     } catch (error) {
       if (error?.details) {
         error.details.forEach((err) => {
           setError(err.type, {
             type: 'manual',
             message: err.message
-          })
-        })
+          });
+        });
       } else {
-        console.error(error)
-        setErrorToast(true)
+        console.error(error);
+        setErrorToast(true);
       }
     }
-  }
+  };
 
   const onSubmitPassword = async (data) => {
-    console.log(data)
+    console.log(data);
 
     if (data.newPassword !== data.confirmNewPassword) {
       setPasswordError('confirmNewPassword', {
         type: 'manual',
         message: 'Passwords do not match'
-      })
-      return
+      });
+      return;
     }
 
     try {
-      const token = getItem('token')
+      const token = getItem('token');
       await userService.updateUserPassword(
         {
           password: data.password,
@@ -189,22 +173,22 @@ const Account = () => {
           confirmNewPassword: data.confirmNewPassword
         },
         token
-      )
-      setSuccessToast(true)
+      );
+      setSuccessToast(true);
     } catch (error) {
       if (error?.details) {
         error.details.forEach((err) => {
           setPasswordError(err.type, {
             type: 'manual',
             message: err.message
-          })
-        })
+          });
+        });
       } else {
-        console.error(error)
-        setErrorToast(true)
+        console.error(error);
+        setErrorToast(true);
       }
     }
-  }
+  };
 
   return (
     <>
@@ -391,7 +375,7 @@ const Account = () => {
         </DialogActions>
       </Dialog>
     </>
-  )
-}
+  );
+};
 
-export default Account
+export default Account;

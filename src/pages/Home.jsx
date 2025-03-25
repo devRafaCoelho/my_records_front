@@ -1,7 +1,7 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import AddCircleIcon from '@mui/icons-material/AddCircle'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
+import { yupResolver } from '@hookform/resolvers/yup';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Alert,
   Box,
@@ -25,53 +25,43 @@ import {
   TableRow,
   TextField,
   Typography
-} from '@mui/material'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { format } from 'date-fns'
-import React, { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import Header from '../components/Header'
-import ValueInput from '../components/Inputs/ValueInput'
-import { RecordSchema } from '../schemas/RecordSchema'
-import recordService from '../services/recordService'
-import { getItem } from '../utils/storage'
+} from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import Header from '../components/Header';
+import ValueInput from '../components/Inputs/ValueInput';
+import { RecordSchema } from '../schemas/RecordSchema';
+import recordService from '../services/recordService';
+import { getItem } from '../utils/storage';
+import dayjs from 'dayjs';
+import { useTheme } from '@mui/material/styles';
 
-const getChipColor = (status) => {
+const getChipColor = (status, theme) => {
   switch (status) {
     case 'Pendente':
-      return 'warning'
+      return theme.palette.warning.dark;
     case 'Vencida':
-      return 'error'
+      return theme.palette.error.dark;
     default:
-      return 'success'
+      return theme.palette.success.dark;
   }
-}
+};
 
 const Home = () => {
-  const [records, setRecords] = useState([])
-  const [snackbarOpen, setSnackbarOpen] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState('')
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [selectedRecordId, setSelectedRecordId] = useState(null)
-  const [modalOpen, setModalOpen] = useState(false)
+  const theme = useTheme();
 
-  const fetchRecords = async () => {
-    const token = getItem('token')
-
-    try {
-      const data = await recordService.findAll(token)
-      setRecords(data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  useEffect(() => {
-    fetchRecords()
-  }, [])
+  const [records, setRecords] = useState([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRecordId, setSelectedRecordId] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentDueDate, setCurrentDueDate] = useState('');
+  const [isEditRecord, setIsEditRecord] = useState(false);
 
   const {
     register,
@@ -87,70 +77,126 @@ const Home = () => {
       value: '',
       paid_out: false
     }
-  })
+  });
 
-  const handleOpenModal = () => {
-    setModalOpen(true)
-  }
+  const fetchRecords = async () => {
+    const token = getItem('token');
 
-  const handleCloseModal = () => {
-    setModalOpen(false)
-    reset()
-  }
+    try {
+      const data = await recordService.findAll(token);
+      setRecords(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  const onSubmit = async (data) => {
+  const onSubmitCreateRecord = async (data) => {
     const formattedData = {
       ...data,
-      due_date: format(new Date(data.due_date), 'dd-MM-yyyy'),
       value: parseFloat(data.value.replace('R$', '').replace('.', '').replace(',', '.'))
-    }
-
-    console.log(formattedData)
+    };
 
     try {
-      const token = getItem('token')
-      await recordService.createRecord(formattedData, token)
-      setSnackbarMessage('Record created successfully!')
-      setSnackbarOpen(true)
-      fetchRecords()
-      handleCloseModal()
+      const token = getItem('token');
+      await recordService.createRecord(formattedData, token);
+
+      setSnackbarMessage('Record created successfully!');
+      setSnackbarOpen(true);
+      fetchRecords();
+      handleCloseModal();
     } catch (error) {
-      console.error('Error creating record:', error)
-      setSnackbarMessage('Error creating record.')
-      setSnackbarOpen(true)
+      console.error(error);
+      setSnackbarMessage('Error creating record.');
+      setSnackbarOpen(true);
     }
-  }
+  };
+
+  const onSubmitUpdateRecord = async (id, data) => {
+    const formattedData = {
+      ...data,
+      value: parseFloat(data.value.replace('R$', '').replace('.', '').replace(',', '.'))
+    };
+
+    try {
+      const token = getItem('token');
+      await recordService.updateRecord(id, formattedData, token);
+
+      setSnackbarMessage('Data changed successfully!');
+      setSnackbarOpen(true);
+      fetchRecords();
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error updating record:', error);
+      throw error;
+    }
+  };
+
+  const handleFormSubmit = async (data) => {
+    if (isEditRecord) {
+      await onSubmitUpdateRecord(selectedRecordId, data);
+    } else {
+      await onSubmitCreateRecord(data);
+    }
+  };
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setIsEditRecord(false);
+    reset();
+  };
 
   const handleOpenDialog = (id) => {
-    setSelectedRecordId(id)
-    setDialogOpen(true)
-  }
+    setSelectedRecordId(id);
+    setDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
-    setDialogOpen(false)
-    setSelectedRecordId(null)
-  }
+    setDialogOpen(false);
+    setSelectedRecordId(null);
+  };
 
   const handleDelete = async () => {
-    const token = getItem('token')
+    const token = getItem('token');
 
     try {
-      await recordService.deleteRecord(selectedRecordId, token)
-      setSnackbarMessage('Record deleted successfully!')
-      setSnackbarOpen(true)
-      fetchRecords()
+      await recordService.deleteRecord(selectedRecordId, token);
+      setSnackbarMessage('Record deleted successfully!');
+      setSnackbarOpen(true);
+      fetchRecords();
     } catch (error) {
-      console.error('Error deleting record:', error)
-      setSnackbarMessage('Error deleting record.')
-      setSnackbarOpen(true)
+      console.error('Error deleting record:', error);
+      setSnackbarMessage('Error deleting record.');
+      setSnackbarOpen(true);
     } finally {
-      handleCloseDialog()
+      handleCloseDialog();
     }
-  }
+  };
 
   const handleSnackbarClose = () => {
-    setSnackbarOpen(false)
-  }
+    setSnackbarOpen(false);
+  };
+
+  const handleEditRecord = (record) => {
+    setSelectedRecordId(record.id);
+    setCurrentDueDate(record.due_date);
+    setIsEditRecord(true);
+    setModalOpen(true);
+
+    reset({
+      description: record.description,
+      due_date: record.due_date,
+      value: record.value,
+      paid_out: record.paid_out
+    });
+  };
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
 
   return (
     <>
@@ -184,7 +230,15 @@ const Home = () => {
                     color="primary"
                     endIcon={<AddCircleIcon />}
                     sx={{ mb: 1 }}
-                    onClick={handleOpenModal}
+                    onClick={() => {
+                      handleOpenModal();
+                      reset({
+                        description: '',
+                        due_date: '',
+                        value: '',
+                        paid_out: false
+                      });
+                    }}
                   >
                     Add Record
                   </Button>
@@ -210,12 +264,18 @@ const Home = () => {
                   <TableCell align="left">
                     <Chip
                       label={record.status}
-                      color={getChipColor(record.status)}
-                      sx={{ fontWeight: 'bold' }}
+                      sx={{
+                        backgroundColor: getChipColor(record.status, theme),
+                        color: 'white',
+                        fontWeight: 'bold'
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center" sx={{ width: 50 }}>
-                    <EditIcon sx={{ cursor: 'pointer', color: 'primary.main' }} />
+                    <EditIcon
+                      sx={{ cursor: 'pointer', color: 'primary.main' }}
+                      onClick={() => handleEditRecord(record)}
+                    />
                   </TableCell>
                   <TableCell align="center" sx={{ width: 50 }}>
                     <DeleteIcon
@@ -238,7 +298,7 @@ const Home = () => {
       >
         <Box
           component="form"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(handleFormSubmit)}
           sx={{
             position: 'absolute',
             top: '50%',
@@ -267,7 +327,9 @@ const Home = () => {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DemoContainer components={['DatePicker']}>
               <DatePicker
-                label="Basic date picker"
+                defaultValue={currentDueDate !== '' ? dayjs(currentDueDate, 'DD-MM-YYYY') : dayjs()}
+                label="Due Date"
+                format="DD-MM-YYYY"
                 slotProps={{
                   textField: {
                     fullWidth: true,
@@ -286,8 +348,8 @@ const Home = () => {
             <Switch
               {...register('paid_out')}
               onChange={(e) => {
-                const value = e.target.checked
-                reset({ ...getValues(), paid_out: value })
+                const value = e.target.checked;
+                reset({ ...getValues(), paid_out: value });
               }}
               checked={!!getValues('paid_out')}
             />
@@ -339,7 +401,7 @@ const Home = () => {
         </Alert>
       </Snackbar>
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
